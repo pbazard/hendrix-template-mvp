@@ -7,6 +7,7 @@ import { Amplify } from "aws-amplify";
 import outputs from "../../amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 Amplify.configure(outputs);
 
@@ -26,8 +27,21 @@ export default function App() {
   }, []);
 
   function createTodo() {
-    client.models.Todo.create({
-      content: window.prompt("Todo content"),
+    const content = window.prompt("Todo content");
+    if (content) {
+      client.models.Todo.create({
+        content,
+      });
+      toast.success("Todo created successfully!", {
+        description: `Added: ${content}`,
+      });
+    }
+  }
+
+  function deleteTodo(id: string, content: string) {
+    client.models.Todo.delete({ id });
+    toast.error("Todo deleted", {
+      description: `Removed: ${content}`,
     });
   }
 
@@ -37,19 +51,34 @@ export default function App() {
         <h1 className="text-3xl font-bold text-center mb-8">QRArtistry MVP</h1>
         <div className="bg-card rounded-lg p-6 shadow-sm border">
           <h2 className="text-xl font-semibold mb-4">My todos</h2>
-          <Button onClick={createTodo} className="mb-4">
-            + Add new todo
-          </Button>
+          <div className="space-x-2 mb-4">
+            <Button onClick={createTodo}>
+              + Add new todo
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => toast.info("This is an info toast!")}
+            >
+              Test Toast
+            </Button>
+          </div>
           <ul className="space-y-2">
             {todos.map((todo) => (
-              <li key={todo.id} className="p-3 bg-muted rounded border">
-                {todo.content}
+              <li key={todo.id} className="p-3 bg-muted rounded border flex justify-between items-center">
+                <span>{todo.content}</span>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => deleteTodo(todo.id, todo.content || "")}
+                >
+                  Delete
+                </Button>
               </li>
             ))}
           </ul>
         </div>
         <div className="mt-8 text-center text-muted-foreground">
-          🥳 App successfully hosted with Tailwind CSS and shadcn/ui!
+          🥳 App successfully hosted with Tailwind CSS, shadcn/ui, and Sonner toasts!
           <br />
           <a 
             href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/"
