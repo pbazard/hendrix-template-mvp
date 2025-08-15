@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfigureAmplify } from "@/components/shared";
+import { ConfigureAmplify, AwsResourcesFooter } from "@/components/shared";
 import { TodoForm, TodoList } from "@/components/todo";
 import { useTodos } from "@/hooks/useTodos";
 import { Button } from "@/components/ui/button";
@@ -79,6 +79,9 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
+
+            {/* AWS Resources Section */}
+            <AwsResourcesFooter />
           </div>
         </div>
       </main>
