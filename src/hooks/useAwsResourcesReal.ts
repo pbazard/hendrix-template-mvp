@@ -204,9 +204,9 @@ export function useAwsResourcesReal() {
         }
 
         // Analyser les modèles DynamoDB à partir de model_introspection
-        if (amplifyConfig.data?.model_introspection?.models) {
+        const models = amplifyConfig.data?.model_introspection?.models;
+        if (models) {
           const region = amplifyConfig.data?.aws_region || amplifyConfig.data?.region || 'us-east-1';
-          const models = amplifyConfig.data.model_introspection.models;
           const deploymentMeta = extractAmplifyDeploymentMeta(amplifyConfig);
           
           console.log('🗃️ [useAwsResourcesReal] Analyse des modèles DynamoDB:', {
