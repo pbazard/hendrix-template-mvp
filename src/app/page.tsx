@@ -1,93 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "../../amplify/data/resource";
-import { Amplify } from "aws-amplify";
-import outputs from "../../amplify_outputs.json";
-import "@aws-amplify/ui-react/styles.css";
+import ConfigureAmplify from "@/components/ConfigureAmplify";
+import TodoForm from "@/components/TodoForm";
+import TodoList from "@/components/TodoList";
+import { useTodos } from "@/hooks/useTodos";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import "@aws-amplify/ui-react/styles.css";
 
-Amplify.configure(outputs);
+export default function HomePage() {
+  const { createTodo } = useTodos();
 
-const client = generateClient<Schema>();
-
-export default function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
-
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
+  const handleTestToast = () => {
+    toast.info("This is an info toast!", {
+      description: "Template is working perfectly!",
     });
-  }
-
-  useEffect(() => {
-    listTodos();
-  }, []);
-
-  function createTodo() {
-    const content = window.prompt("Todo content");
-    if (content) {
-      client.models.Todo.create({
-        content,
-      });
-      toast.success("Todo created successfully!", {
-        description: `Added: ${content}`,
-      });
-    }
-  }
-
-  function deleteTodo(id: string, content: string) {
-    client.models.Todo.delete({ id });
-    toast.error("Todo deleted", {
-      description: `Removed: ${content}`,
-    });
-  }
+  };
 
   return (
-    <main className="container mx-auto py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Hendrix MVP Template</h1>
-        <div className="bg-card rounded-lg p-6 shadow-sm border">
-          <h2 className="text-xl font-semibold mb-4">My todos</h2>
-          <div className="space-x-2 mb-4">
-            <Button onClick={createTodo}>
-              + Add new todo
-            </Button>
+    <>
+      {/* Configure Amplify */}
+      <ConfigureAmplify />
+      
+      <main className="container mx-auto py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-4">
+              🚀 Hendrix MVP Template
+            </h1>
+            <p className="text-lg text-muted-foreground mb-6">
+              A complete Todo CRUD application with AWS Amplify, Next.js 15, and shadcn/ui
+            </p>
             <Button 
               variant="outline" 
-              onClick={() => toast.info("This is an info toast!")}
+              onClick={handleTestToast}
+              className="mb-8"
             >
-              Test Toast
+              Test Toast Notification
             </Button>
           </div>
-          <ul className="space-y-2">
-            {todos.map((todo) => (
-              <li key={todo.id} className="p-3 bg-muted rounded border flex justify-between items-center">
-                <span>{todo.content}</span>
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={() => deleteTodo(todo.id, todo.content || "")}
+
+          {/* Todo Application */}
+          <div className="space-y-6">
+            <TodoForm onAdd={createTodo} />
+            <TodoList />
+          </div>
+
+          {/* Footer */}
+          <div className="mt-12 text-center text-muted-foreground">
+            <div className="space-y-2">
+              <p>✨ Ready for development with modern best practices!</p>
+              <div className="flex items-center justify-center gap-4 text-sm">
+                <a 
+                  href="https://github.com/pbazard/hendrix-template-mvp"
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  Delete
-                </Button>
-              </li>
-            ))}
-          </ul>
+                  📖 View Documentation
+                </a>
+                <span>•</span>
+                <a 
+                  href="https://github.com/pbazard/hendrix-template-mvp/issues"
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  🐛 Report Issues
+                </a>
+                <span>•</span>
+                <a 
+                  href="https://docs.amplify.aws/nextjs/"
+                  className="text-primary hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  🔧 Amplify Docs
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mt-8 text-center text-muted-foreground">
-          🚀 Hendrix MVP Template - Ready for development!
-          <br />
-          <a 
-            href="https://github.com/pbazard/hendrix-template-mvp"
-            className="text-primary hover:underline"
-          >
-            View template documentation
-          </a>
-        </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
