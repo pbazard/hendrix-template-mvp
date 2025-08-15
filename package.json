@@ -1,7 +1,23 @@
 {
-  "name": "qrartistry-mvp",
-  "version": "0.1.0",
+  "name": "nextjs-amplify-template",
+  "version": "1.0.0",
+  "description": "A modern Next.js template with AWS Amplify, Tailwind CSS, and shadcn/ui",
   "private": true,
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "aws-amplify",
+    "tailwindcss",
+    "shadcn-ui",
+    "template"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/nextjs-amplify-template.git"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
