@@ -1,8 +1,7 @@
 "use client";
 
-import ConfigureAmplify from "@/components/ConfigureAmplify";
-import TodoForm from "@/components/TodoForm";
-import TodoList from "@/components/TodoList";
+import { ConfigureAmplify } from "@/components/shared";
+import { TodoForm, TodoList } from "@/components/todo";
 import { useTodos } from "@/hooks/useTodos";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

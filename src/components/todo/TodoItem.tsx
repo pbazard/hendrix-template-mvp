@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button, Input, Badge, Card, CardContent } from "@/components/ui";
 import { Calendar, CheckCircle, Circle, Edit2, Save, Trash2, X } from "lucide-react";
-import type { Schema } from "../../amplify/data/resource";
+import type { Schema } from "../../../amplify/data/resource";
 
 interface TodoItemProps {
   todo: Schema["Todo"]["type"];

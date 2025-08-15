@@ -47,42 +47,49 @@ describe('Home Page', () => {
 
   it('renders the main heading', () => {
     render(<Home />)
-    expect(screen.getByRole('heading', { name: 'Hendrix MVP Template' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '🚀 Hendrix MVP Template' })).toBeInTheDocument()
   })
 
-  it('renders the todos section', () => {
+  it('renders the description', () => {
     render(<Home />)
-    expect(screen.getByRole('heading', { name: 'My todos' })).toBeInTheDocument()
-  })
-
-  it('renders add todo button', () => {
-    render(<Home />)
-    expect(screen.getByRole('button', { name: '+ Add new todo' })).toBeInTheDocument()
+    expect(screen.getByText(/A complete Todo CRUD application with AWS Amplify/)).toBeInTheDocument()
   })
 
   it('renders test toast button', () => {
     render(<Home />)
-    expect(screen.getByRole('button', { name: 'Test Toast' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Test Toast Notification' })).toBeInTheDocument()
+  })
+
+  it('renders add new todo form', () => {
+    render(<Home />)
+    expect(screen.getByText('Add New Todo')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('What needs to be done?')).toBeInTheDocument()
+  })
+
+  it('renders overview section', () => {
+    render(<Home />)
+    expect(screen.getByText('Overview')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'All 0' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Active 0' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Completed 0' })).toBeInTheDocument()
+  })
+
+  it('renders documentation links', () => {
+    render(<Home />)
+    expect(screen.getByRole('link', { name: '📖 View Documentation' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '🐛 Report Issues' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '🔧 Amplify Docs' })).toBeInTheDocument()
   })
 
   it('shows info toast when test toast button is clicked', async () => {
     const { toast } = await import('sonner')
     render(<Home />)
-    const testButton = screen.getByRole('button', { name: 'Test Toast' })
+    const testButton = screen.getByRole('button', { name: 'Test Toast Notification' })
     
     fireEvent.click(testButton)
     
-    expect(toast.info).toHaveBeenCalledWith('This is an info toast!')
-  })
-
-  it('renders footer text', () => {
-    render(<Home />)
-    expect(screen.getByText(/Hendrix MVP Template - Ready for development!/)).toBeInTheDocument()
-  })
-
-  it('renders documentation link', () => {
-    render(<Home />)
-    const link = screen.getByRole('link', { name: /View template documentation/ })
-    expect(link).toHaveAttribute('href', expect.stringContaining('github.com/pbazard/hendrix-template-mvp'))
+    expect(toast.info).toHaveBeenCalledWith('This is an info toast!', {
+      description: 'Template is working perfectly!'
+    })
   })
 })

@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import TodoItem from "./TodoItem";
 import { useTodos } from "@/hooks/useTodos";
 import { Filter, SortAsc, BarChart3, AlertCircle } from "lucide-react";

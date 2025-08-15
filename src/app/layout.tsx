@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
+import { ConfigureAmplify } from "@/components/shared";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <ConfigureAmplifyClientSide />
+      <ConfigureAmplify />
       <body className={inter.className}>
         {children}
         <Toaster richColors position="top-right" />
