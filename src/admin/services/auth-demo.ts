@@ -184,44 +184,4 @@ export class CognitoAuthService {
   static async isAuthenticated(): Promise<boolean> {
     return true; // Toujours authentifié en mode démo
   }
-
-  /**
-   * Vérifie si l'utilisateur a accès à l'interface d'administration (version démo)
-   */
-  static async hasAdminAccess(user: CognitoUser): Promise<boolean> {
-    return user.groups.includes('administrators') || user.groups.includes('staff');
-  }
-
-  /**
-   * Récupère les permissions d'un utilisateur (version démo)
-   */
-  static async getUserPermissions(user: CognitoUser): Promise<Permission[]> {
-    const permissions: Permission[] = [];
-
-    if (user.groups.includes('administrators')) {
-      // Administrateurs ont tous les droits
-      permissions.push(
-        { id: '1', name: 'Can add user', codename: 'add_user', contentType: 'User' },
-        { id: '2', name: 'Can change user', codename: 'change_user', contentType: 'User' },
-        { id: '3', name: 'Can delete user', codename: 'delete_user', contentType: 'User' },
-        { id: '4', name: 'Can view user', codename: 'view_user', contentType: 'User' },
-        { id: '5', name: 'Can add todo', codename: 'add_todo', contentType: 'Todo' },
-        { id: '6', name: 'Can change todo', codename: 'change_todo', contentType: 'Todo' },
-        { id: '7', name: 'Can delete todo', codename: 'delete_todo', contentType: 'Todo' },
-        { id: '8', name: 'Can view todo', codename: 'view_todo', contentType: 'Todo' },
-        { id: '9', name: 'Can view audit log', codename: 'view_auditlog', contentType: 'AuditLog' }
-      );
-    } else if (user.groups.includes('staff')) {
-      // Staff a des droits limités
-      permissions.push(
-        { id: '4', name: 'Can view user', codename: 'view_user', contentType: 'User' },
-        { id: '5', name: 'Can add todo', codename: 'add_todo', contentType: 'Todo' },
-        { id: '6', name: 'Can change todo', codename: 'change_todo', contentType: 'Todo' },
-        { id: '8', name: 'Can view todo', codename: 'view_todo', contentType: 'Todo' },
-        { id: '9', name: 'Can view audit log', codename: 'view_auditlog', contentType: 'AuditLog' }
-      );
-    }
-
-    return permissions;
-  }
 }

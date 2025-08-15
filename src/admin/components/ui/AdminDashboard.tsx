@@ -5,9 +5,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAdmin } from '../context/AdminContext';
-import { DataService } from '../services/data';
-import { ActionType } from '../types';
+import { useAdmin } from '../../context/AdminContext';
+import { DataService } from '../../services/data';
+import { ActionType } from '../../types';
 import { 
   Users, 
   CheckSquare, 
@@ -62,13 +62,13 @@ export function AdminDashboard() {
       // Charger les statistiques en parallèle
       const [usersData, todosData, auditLogsData] = await Promise.all([
         hasPermission(ActionType.LIST, 'User') 
-          ? DataService.list('User', { pageSize: 1 })
+          ? DataService.list('User', { filters: [], pageSize: 1 })
           : { total: 0, items: [] },
         hasPermission(ActionType.LIST, 'Todo')
-          ? DataService.list('Todo', { pageSize: 1000 })
+          ? DataService.list('Todo', { filters: [], pageSize: 1000 })
           : { total: 0, items: [] },
         hasPermission(ActionType.LIST, 'AuditLog')
-          ? DataService.list('AuditLog', { pageSize: 10, ordering: '-timestamp' })
+          ? DataService.list('AuditLog', { filters: [], pageSize: 10, ordering: '-timestamp' })
           : { total: 0, items: [] }
       ]);
 
