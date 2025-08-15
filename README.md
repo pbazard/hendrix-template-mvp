@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="public/banner.png" alt="Hendrix MVP Template Banner" width="100%">
-</div>
-
 # 🚀 Hendrix MVP Template
 
 <div align="center">
