@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Database, Eye, Code, Copy } from 'lucide-react';
 import { useAwsResourcesReal } from '@/hooks/useAwsResourcesReal';
 import { useAwsResourcesAutoSync } from '@/hooks/useAwsResourcesAutoSync';
+import { toast } from 'sonner';
 
 export default function AwsResourcesDiagnosticPage() {
   const [amplifyConfig, setAmplifyConfig] = useState<any>(null);
@@ -34,8 +35,16 @@ export default function AwsResourcesDiagnosticPage() {
       await navigator.clipboard.writeText(text);
       setCopied(label);
       setTimeout(() => setCopied(null), 2000);
+      toast.success(`${label} copié!`, {
+        description: 'Contenu copié dans le presse-papiers',
+        duration: 2000,
+      });
     } catch (err) {
       console.error('Failed to copy:', err);
+      toast.error('Erreur lors de la copie', {
+        description: 'Impossible de copier dans le presse-papiers',
+        duration: 3000,
+      });
     }
   };
 

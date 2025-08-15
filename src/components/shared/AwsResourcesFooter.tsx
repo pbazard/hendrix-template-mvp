@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight, Cloud, Database, Shield, User, Zap, Archive, Settings, Code, ExternalLink, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 
 const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   'DynamoDB': Database,
@@ -51,6 +52,21 @@ export function AwsResourcesFooter() {
       newExpanded.add(serviceName);
     }
     setExpandedServices(newExpanded);
+  };
+
+  const copyArn = async (arn: string, resourceName: string) => {
+    try {
+      await navigator.clipboard.writeText(arn);
+      toast.success(`ARN copié!`, {
+        description: `ARN de ${resourceName} copié dans le presse-papiers`,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast.error('Erreur lors de la copie', {
+        description: 'Impossible de copier l\'ARN dans le presse-papiers',
+        duration: 3000,
+      });
+    }
   };
 
   if (loading) {
@@ -177,7 +193,7 @@ export function AwsResourcesFooter() {
                                           size="icon"
                                           variant="ghost"
                                           className="h-5 w-5 shrink-0"
-                                          onClick={() => navigator.clipboard.writeText(resource.arn || '')}
+                                          onClick={() => copyArn(resource.arn || '', resource.name)}
                                           title="Copy ARN"
                                         >
                                           <Copy className="h-3 w-3" />
