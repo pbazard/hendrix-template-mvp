@@ -1,4 +1,12 @@
+<div align="center">
+  <img src="public/banner.png" alt="Hendrix MVP Template Banner" width="100%">
+</div>
+
 # 🚀 Hendrix MVP Template
+
+<div align="center">
+  <img src="public/logo.png" alt="Hendrix MVP Template Logo" width="200" height="200">
+</div>
 
 > **Ready-to-use Next.js template for rapid MVP development**
 

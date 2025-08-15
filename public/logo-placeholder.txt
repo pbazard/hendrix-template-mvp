@@ -1,0 +1,3 @@
+# Logo placeholder - remplacez par votre vraie image
+# Ce fichier existe juste pour montrer l'emplacement
+# Supprimez ce fichier et ajoutez votre logo.png ici
