@@ -8,6 +8,7 @@ import {
   createRealisticDynamoDBArn,
   formatResourceDisplayName 
 } from '@/lib/amplify-resource-utils';
+import { FALLBACK_AMPLIFY_CONFIG } from '@/lib/amplify-config-fallback';
 
 // Interface pour les métadonnées Amplify
 interface AmplifyBackendConfig {
@@ -101,30 +102,72 @@ export function useAwsResourcesReal() {
         setLoading(true);
         setError(null);
 
+        console.log('🔍 [useAwsResourcesReal] Début de la détection des ressources...');
+
         // Charger la configuration Amplify
         let amplifyConfig: AmplifyBackendConfig = {};
         
         try {
-          // Essayer de charger la vraie configuration Amplify
-          amplifyConfig = await import('@/amplify_outputs.json');
-        } catch (configError) {
-          console.warn('amplify_outputs.json not found, using environment or fallback data');
+          // Méthode 1: Essayer l'import dynamique
+          try {
+            amplifyConfig = await import('@/amplify_outputs.json');
+            console.log('✅ [useAwsResourcesReal] Configuration chargée via import dynamique');
+          } catch (importError) {
+            console.log('⚠️ [useAwsResourcesReal] Import dynamique échoué, tentative avec fetch...');
+            
+            // Méthode 2: Essayer avec fetch pour les environnements de production
+            try {
+              const response = await fetch('/amplify_outputs.json');
+              if (response.ok) {
+                amplifyConfig = await response.json();
+                console.log('✅ [useAwsResourcesReal] Configuration chargée via fetch');
+              } else {
+                throw new Error(`Fetch failed: ${response.status}`);
+              }
+            } catch (fetchError) {
+              console.log('⚠️ [useAwsResourcesReal] Fetch échoué, tentative avec require...');
+              
+              // Méthode 3: Fallback avec require (si disponible)
+              try {
+                amplifyConfig = require('@/amplify_outputs.json');
+                console.log('✅ [useAwsResourcesReal] Configuration chargée via require');
+              } catch (requireError) {
+                console.log('⚠️ [useAwsResourcesReal] Require échoué, utilisation du fallback...');
+                amplifyConfig = FALLBACK_AMPLIFY_CONFIG;
+                console.log('✅ [useAwsResourcesReal] Configuration chargée via fallback');
+              }
+            }
+          }
           
-          // Fallback: essayer de lire depuis les variables d'environnement ou d'autres sources
+          console.log('✅ [useAwsResourcesReal] Configuration Amplify chargée:', {
+            hasAuth: !!amplifyConfig.auth,
+            hasData: !!amplifyConfig.data,
+            hasModels: !!amplifyConfig.data?.model_introspection?.models,
+            modelsCount: amplifyConfig.data?.model_introspection?.models ? Object.keys(amplifyConfig.data.model_introspection.models).length : 0
+          });
+        } catch (configError) {
+          console.warn('⚠️ [useAwsResourcesReal] Toutes les méthodes de chargement ont échoué, utilisation du fallback et des variables d\'environnement');
+          
+          // Fallback final: utiliser la configuration en dur et les variables d'environnement
           amplifyConfig = {
+            ...FALLBACK_AMPLIFY_CONFIG,
             auth: {
-              user_pool_id: process.env.NEXT_PUBLIC_USER_POOL_ID,
-              identity_pool_id: process.env.NEXT_PUBLIC_IDENTITY_POOL_ID,
+              ...FALLBACK_AMPLIFY_CONFIG.auth,
+              user_pool_id: process.env.NEXT_PUBLIC_USER_POOL_ID || FALLBACK_AMPLIFY_CONFIG.auth.user_pool_id,
+              identity_pool_id: process.env.NEXT_PUBLIC_IDENTITY_POOL_ID || FALLBACK_AMPLIFY_CONFIG.auth.identity_pool_id,
             },
             data: {
-              url: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
-              region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
+              ...FALLBACK_AMPLIFY_CONFIG.data,
+              url: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || FALLBACK_AMPLIFY_CONFIG.data.url,
+              aws_region: process.env.NEXT_PUBLIC_AWS_REGION || FALLBACK_AMPLIFY_CONFIG.data.aws_region,
             },
             storage: {
               bucket_name: process.env.NEXT_PUBLIC_S3_BUCKET,
-              region: process.env.NEXT_PUBLIC_AWS_REGION || 'us-east-1',
+              region: process.env.NEXT_PUBLIC_AWS_REGION || FALLBACK_AMPLIFY_CONFIG.data.aws_region,
             }
           };
+          
+          console.log('✅ [useAwsResourcesReal] Configuration fallback appliquée');
         }
 
         const detectedResources: AwsResource[] = [];
@@ -166,6 +209,13 @@ export function useAwsResourcesReal() {
           const models = amplifyConfig.data.model_introspection.models;
           const deploymentMeta = extractAmplifyDeploymentMeta(amplifyConfig);
           
+          console.log('🗃️ [useAwsResourcesReal] Analyse des modèles DynamoDB:', {
+            region,
+            modelsCount: Object.keys(models).length,
+            modelNames: Object.keys(models),
+            deploymentMeta
+          });
+          
           Object.entries(models).forEach(([modelName, modelInfo]) => {
             // Générer le nom de la table DynamoDB le plus probable
             const tableName = guessDynamoDBTableName(modelName, amplifyConfig);
@@ -174,7 +224,7 @@ export function useAwsResourcesReal() {
             // Créer un ARN réaliste
             const tableArn = createRealisticDynamoDBArn(modelName, amplifyConfig);
             
-            detectedResources.push({
+            const resource = {
               id: `dynamodb-table-${modelName.toLowerCase()}`,
               name: displayName,
               type: 'Table',
@@ -184,8 +234,20 @@ export function useAwsResourcesReal() {
               description: `Table DynamoDB pour le modèle ${modelName} (${Object.keys(modelInfo.fields).length} champs: ${Object.keys(modelInfo.fields).slice(0, 3).join(', ')}${Object.keys(modelInfo.fields).length > 3 ? '...' : ''})`,
               arn: tableArn,
               consoleUrl: generateConsoleUrl('DynamoDB', region, 'Table', tableName)
+            };
+            
+            console.log(`📋 [useAwsResourcesReal] Table DynamoDB détectée:`, {
+              modelName,
+              tableName,
+              displayName,
+              arn: tableArn,
+              fieldsCount: Object.keys(modelInfo.fields).length
             });
+            
+            detectedResources.push(resource);
           });
+        } else {
+          console.log('⚠️ [useAwsResourcesReal] Aucun modèle DynamoDB trouvé dans model_introspection');
         }
 
         // Analyser les ressources AppSync/GraphQL
@@ -224,7 +286,7 @@ export function useAwsResourcesReal() {
 
         // Si aucune ressource n'est détectée, utiliser des données d'exemple
         if (detectedResources.length === 0) {
-          console.info('No real AWS resources detected, showing example resources');
+          console.warn('⚠️ [useAwsResourcesReal] Aucune ressource AWS détectée, affichage de ressources d\'exemple');
           detectedResources.push(
             {
               id: 'example-table',
@@ -238,6 +300,9 @@ export function useAwsResourcesReal() {
               consoleUrl: generateConsoleUrl('DynamoDB', 'us-east-1', 'Table', 'amplify-todo-table-dev')
             }
           );
+        } else {
+          console.log(`✅ [useAwsResourcesReal] ${detectedResources.length} ressources détectées:`, 
+            detectedResources.map(r => `${r.service}/${r.name}`));
         }
 
         // Grouper par service
@@ -249,14 +314,18 @@ export function useAwsResourcesReal() {
           return acc;
         }, {} as AwsResourcesByService);
 
+        console.log('📊 [useAwsResourcesReal] Ressources groupées par service:', 
+          Object.fromEntries(Object.entries(grouped).map(([service, resources]) => [service, resources.length])));
+
         setResources(detectedResources);
         setResourcesByService(grouped);
         
       } catch (err) {
-        console.error('Error fetching AWS resources:', err);
+        console.error('❌ [useAwsResourcesReal] Erreur lors de la récupération des ressources AWS:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch AWS resources');
       } finally {
         setLoading(false);
+        console.log('🏁 [useAwsResourcesReal] Fin de la détection des ressources');
       }
     };
 
