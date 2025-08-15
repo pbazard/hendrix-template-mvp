@@ -172,8 +172,7 @@ Toutes les actions sont automatiquement enregistrées :
 ### 1. Intégration dans une page Next.js
 
 ```typescript
-import { AdminLayout } from '@/admin/components/AdminLayout';
-import { AdminDashboard } from '@/admin/components/AdminDashboard';
+import { AdminLayout, AdminDashboard } from '@/admin/components';
 
 export default function AdminPage() {
   return (

@@ -2,8 +2,7 @@
  * Page principale de l'interface d'administration Hendrix
  */
 
-import { AdminLayout } from '@/admin/components/AdminLayout';
-import { AdminDashboard } from '@/admin/components/AdminDashboard';
+import { AdminLayout, AdminDashboard } from '@/admin/components';
 
 export default function AdminPage() {
   return (
