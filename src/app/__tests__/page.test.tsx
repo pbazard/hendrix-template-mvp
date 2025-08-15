@@ -47,7 +47,7 @@ describe('Home Page', () => {
 
   it('renders the main heading', () => {
     render(<Home />)
-    expect(screen.getByRole('heading', { name: 'QRArtistry MVP' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Hendrix MVP Template' })).toBeInTheDocument()
   })
 
   it('renders the todos section', () => {
@@ -77,12 +77,12 @@ describe('Home Page', () => {
 
   it('renders footer text', () => {
     render(<Home />)
-    expect(screen.getByText(/App successfully hosted with Tailwind CSS/)).toBeInTheDocument()
+    expect(screen.getByText(/Hendrix MVP Template - Ready for development!/)).toBeInTheDocument()
   })
 
   it('renders documentation link', () => {
     render(<Home />)
-    const link = screen.getByRole('link', { name: /Review next steps/ })
-    expect(link).toHaveAttribute('href', expect.stringContaining('docs.amplify.aws'))
+    const link = screen.getByRole('link', { name: /View template documentation/ })
+    expect(link).toHaveAttribute('href', expect.stringContaining('github.com/pbazard/hendrix-template-mvp'))
   })
 })
