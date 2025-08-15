@@ -29,7 +29,7 @@ jobs:
     
     steps:
       - name: 🔍 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -62,7 +62,7 @@ jobs:
     
     steps:
       - name: 🔍 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🧹 Clear GitHub Actions Cache
         run: |
@@ -85,7 +85,7 @@ jobs:
     
     steps:
       - name: 🔍 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🗑️ Delete old artifacts
         run: |
@@ -108,7 +108,7 @@ jobs:
     
     steps:
       - name: 🔍 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🗑️ Delete old package versions
         run: |

@@ -23,7 +23,7 @@ jobs:
       pull-requests: write
     steps:
       - name: 📦 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🔍 Check PR status
         id: pr_status
