@@ -27,8 +27,8 @@ sed -i "s/Your Name <your.email@example.com>/$AUTHOR_NAME <$AUTHOR_EMAIL>/g" pac
 sed -i "s/yourusername/$GITHUB_USERNAME/g" package.json
 
 # Update app metadata
-sed -i "s/QRArtistry MVP/$PROJECT_NAME/g" src/app/layout.tsx
-sed -i "s/Create beautiful QR codes with artistic designs/$PROJECT_DESCRIPTION/g" src/app/layout.tsx
+sed -i "s/Hendrix MVP Template/$PROJECT_NAME/g" src/app/layout.tsx
+sed -i "s/A complete Todo CRUD application with AWS Amplify, Next.js 15, and shadcn\/ui/$PROJECT_DESCRIPTION/g" src/app/layout.tsx
 
 # Copy template README
 if [ -f "README-TEMPLATE.md" ]; then

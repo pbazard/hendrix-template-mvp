@@ -18,8 +18,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <ConfigureAmplify />
       <body className={inter.className}>
+        <ConfigureAmplify />
         {children}
         <Toaster richColors position="top-right" />
       </body>

@@ -32,7 +32,7 @@ A modern, production-ready template for building MVPs quickly with the latest we
 Click the **"Use this template"** button above or:
 
 ```bash
-gh repo create my-awesome-mvp --template pbazard/qrartistry-mvp
+gh repo create my-awesome-mvp --template pbazard/hendrix-template-mvp
 cd my-awesome-mvp
 ```
 
@@ -191,7 +191,7 @@ Built with amazing open-source technologies:
 
 <div align="center">
 
-**[Use this template](https://github.com/pbazard/qrartistry-mvp/generate)** to start building your MVP today! 🚀
+**[Use this template](https://github.com/pbazard/hendrix-template-mvp/generate)** to start building your MVP today! 🚀
 
 </div>
 
