@@ -1,7 +1,7 @@
 {
-  "name": "nextjs-amplify-template",
+  "name": "hendrix-template-mvp",
   "version": "1.0.0",
-  "description": "A modern Next.js template with AWS Amplify, Tailwind CSS, and shadcn/ui",
+  "description": "Hendrix MVP Template - A modern Next.js template with AWS Amplify, Tailwind CSS, and shadcn/ui",
   "private": true,
   "keywords": [
     "nextjs",
@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/nextjs-amplify-template.git"
+    "url": "https://github.com/pbazard/hendrix-template-mvp.git"
   },
   "scripts": {
     "dev": "next dev",

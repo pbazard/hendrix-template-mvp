@@ -1,6 +1,8 @@
-# Next.js 15 + AWS Amplify + Tailwind + shadcn/ui Template
+# Hendrix MVP Template
 
-A modern, production-ready template for Next.js applications with AWS Amplify backend, Tailwind CSS styling, and shadcn/ui components.
+**Next.js 15 + AWS Amplify + Tailwind + shadcn/ui**
+
+A modern, production-ready template for rapid MVP development with Next.js applications, AWS Amplify backend, Tailwind CSS styling, and shadcn/ui components.
 
 ## 🚀 Features
 
@@ -27,7 +29,7 @@ A modern, production-ready template for Next.js applications with AWS Amplify ba
 Click the "Use this template" button on GitHub or:
 
 ```bash
-gh repo create my-new-project --template pbazard/nextjs-amplify-template
+gh repo create my-new-project --template pbazard/hendrix-template-mvp
 cd my-new-project
 ```
 

@@ -12,7 +12,7 @@
 2. **Create new project from template:**
    ```bash
    # Using GitHub CLI
-   gh repo create my-new-project --template pbazard/nextjs-amplify-template --public
+   gh repo create my-new-project --template pbazard/hendrix-template-mvp --public
    
    # Or click "Use this template" on GitHub
    ```
@@ -21,7 +21,7 @@
 
 ```bash
 # Clone the template
-git clone https://github.com/pbazard/nextjs-amplify-template.git my-new-project
+git clone https://github.com/pbazard/hendrix-template-mvp.git my-new-project
 cd my-new-project
 
 # Remove git history and start fresh

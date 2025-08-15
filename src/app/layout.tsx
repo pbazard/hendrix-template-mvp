@@ -6,8 +6,8 @@ import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "QRArtistry MVP",
-  description: "Create beautiful QR codes with artistic designs",
+  title: "Hendrix MVP Template",
+  description: "A modern Next.js template for rapid MVP development",
 };
 
 export default function RootLayout({

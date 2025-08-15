@@ -21,8 +21,8 @@ GITHUB_USERNAME=$(prompt_for_input "Enter your GitHub username")
 echo "📝 Updating project files..."
 
 # Update package.json
-sed -i "s/nextjs-amplify-template/$PROJECT_NAME/g" package.json
-sed -i "s/A modern Next.js template with AWS Amplify, Tailwind CSS, and shadcn\/ui/$PROJECT_DESCRIPTION/g" package.json
+sed -i "s/hendrix-template-mvp/$PROJECT_NAME/g" package.json
+sed -i "s/Hendrix MVP Template - A modern Next.js template with AWS Amplify, Tailwind CSS, and shadcn\/ui/$PROJECT_DESCRIPTION/g" package.json
 sed -i "s/Your Name <your.email@example.com>/$AUTHOR_NAME <$AUTHOR_EMAIL>/g" package.json
 sed -i "s/yourusername/$GITHUB_USERNAME/g" package.json
 
@@ -53,7 +53,7 @@ echo "🔄 Reinitializing git repository..."
 rm -rf .git
 git init
 git add .
-git commit -m "Initial commit from nextjs-amplify-template"
+git commit -m "Initial commit from hendrix-template-mvp"
 
 echo "✅ Template setup complete!"
 echo ""

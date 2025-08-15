@@ -48,7 +48,7 @@ export default function App() {
   return (
     <main className="container mx-auto py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">QRArtistry MVP</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">Hendrix MVP Template</h1>
         <div className="bg-card rounded-lg p-6 shadow-sm border">
           <h2 className="text-xl font-semibold mb-4">My todos</h2>
           <div className="space-x-2 mb-4">
@@ -78,13 +78,13 @@ export default function App() {
           </ul>
         </div>
         <div className="mt-8 text-center text-muted-foreground">
-          🥳 App successfully hosted with Tailwind CSS, shadcn/ui, and Sonner toasts!
+          🚀 Hendrix MVP Template - Ready for development!
           <br />
           <a 
-            href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/"
+            href="https://github.com/pbazard/hendrix-template-mvp"
             className="text-primary hover:underline"
           >
-            Review next steps of this tutorial.
+            View template documentation
           </a>
         </div>
       </div>
