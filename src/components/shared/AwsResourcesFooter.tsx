@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAwsResources } from '@/hooks/useAwsResources';
+import { useAwsResourcesAutoSync } from '@/hooks/useAwsResourcesAutoSync';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,7 +28,18 @@ const serviceColors: Record<string, string> = {
 };
 
 export function AwsResourcesFooter() {
-  const { resourcesByService, loading, error, getResourceCount, getServiceCount } = useAwsResources();
+  const { 
+    resourcesByService, 
+    loading, 
+    error, 
+    getResourceCount, 
+    getServiceCount,
+    activeSource,
+    stats
+  } = useAwsResourcesAutoSync({
+    useRealResources: true,
+    autoRefreshInterval: 30000
+  });
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedServices, setExpandedServices] = useState<Set<string>>(new Set());
 
@@ -70,6 +81,9 @@ export function AwsResourcesFooter() {
         >
           <Cloud className="h-4 w-4 mr-2" />
           AWS Resources ({getResourceCount()} resources, {getServiceCount()} services)
+          <Badge variant="outline" className="ml-2 text-xs">
+            {activeSource === 'real' ? 'Live' : 'Demo'}
+          </Badge>
           {isExpanded ? (
             <ChevronDown className="h-4 w-4 ml-2" />
           ) : (
@@ -83,7 +97,12 @@ export function AwsResourcesFooter() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Cloud className="h-5 w-5" />
-              AWS Resources Created by Amplify
+              AWS Resources {activeSource === 'real' ? 'Created by Amplify' : '(Demo Data)'}
+              {loading && (
+                <Badge variant="secondary" className="text-xs">
+                  Synchronizing...
+                </Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent>
