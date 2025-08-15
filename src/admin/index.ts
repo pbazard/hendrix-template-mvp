@@ -15,9 +15,14 @@ export * from './services/data';
 // Context
 export * from './context/AdminContext';
 
-// Composants
-export { AdminLayout } from './components/AdminLayout';
-export { AdminHeader } from './components/AdminHeader';
-export { AdminSidebar } from './components/AdminSidebar';
-export { AdminBreadcrumb } from './components/AdminBreadcrumb';
-export { AdminDashboard } from './components/AdminDashboard';
+// Hooks
+export * from './hooks';
+
+// Utilitaires
+export * from './utils';
+
+// Constantes
+export * from './constants';
+
+// Composants (organisés par catégories)
+export * from './components';

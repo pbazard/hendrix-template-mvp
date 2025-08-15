@@ -10,11 +10,16 @@ export interface CognitoUser {
   id: string;
   username: string;
   email: string;
+  given_name?: string;
+  family_name?: string;
+  phone_number?: string;
   groups: string[];
   attributes: Record<string, any>;
   isActive: boolean;
+  enabled?: boolean;
   dateJoined: Date;
   lastLogin?: Date;
+  status?: 'CONFIRMED' | 'UNCONFIRMED' | 'ARCHIVED' | 'COMPROMISED' | 'UNKNOWN' | 'RESET_REQUIRED' | 'FORCE_CHANGE_PASSWORD';
 }
 
 export interface CognitoGroup {
@@ -57,6 +62,27 @@ export interface ModelField {
   minLength?: number;
   defaultValue?: any;
   validation?: (value: any) => string | null;
+}
+
+export interface AdminFieldConfig {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'boolean' | 'date' | 'datetime' | 'number';
+  required?: boolean;
+  readonly?: boolean;
+  helpText?: string;
+  choices?: Array<{ value: string; label: string }>;
+  validation?: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+    custom?: (value: any) => boolean | string;
+  };
+}
+
+export interface FieldChoice {
+  value: string;
+  label: string;
 }
 
 export interface ModelAdmin {
