@@ -132,15 +132,43 @@ Modify `amplify/data/resource.ts` to define your data schema and `amplify/auth/r
 
 ## 🚀 Deployment
 
-### Amplify Hosting
+### AWS Amplify Hosting
+
+#### Development
 ```bash
-npx ampx sandbox # Development
-# Production via Amplify Console
+npx ampx sandbox
+```
+
+#### Production
+1. **Connect your repository** to AWS Amplify Console
+2. **Build settings** are configured in `amplify.yml`
+3. **Node.js version** is specified in `.nvmrc` (Node 20)
+
+#### Troubleshooting Common Issues
+
+**Package Lock Sync Error:**
+```bash
+# Fix locally then commit
+npm install
+git add package-lock.json
+git commit -m "fix: sync package-lock.json"
+```
+
+**Build Configuration:**
+- Ensure `amplify.yml` is in root directory
+- Node.js 20 is specified in `.nvmrc`
+- Build command uses `npm ci` for consistency
+
+#### Environment Variables
+Set these in Amplify Console > Environment Variables:
+```
+NODE_VERSION=20
+NODE_OPTIONS=--max-old-space-size=4096
 ```
 
 ### Other Platforms
 - **Vercel**: Zero-config deployment
-- **Netlify**: Static site hosting
+- **Netlify**: Static site hosting  
 - **Docker**: Container deployment
 
 ## 🤝 Contributing
