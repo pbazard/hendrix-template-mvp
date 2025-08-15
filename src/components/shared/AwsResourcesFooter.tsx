@@ -5,7 +5,7 @@ import { useAwsResources } from '@/hooks/useAwsResources';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronRight, Cloud, Database, Shield, User, Zap, Archive, Settings, Code } from 'lucide-react';
+import { ChevronDown, ChevronRight, Cloud, Database, Shield, User, Zap, Archive, Settings, Code, ExternalLink, Copy } from 'lucide-react';
 
 const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   'DynamoDB': Database,
@@ -120,35 +120,66 @@ export function AwsResourcesFooter() {
                       </Button>
 
                       {isServiceExpanded && (
-                        <div className="mt-3 space-y-2 border-t pt-3">
+                        <div className="mt-3 space-y-3 border-t pt-3">
                           {resources.map((resource) => (
                             <div
                               key={resource.id}
-                              className="flex items-center justify-between p-2 rounded-md bg-muted/50"
+                              className="p-3 rounded-md bg-muted/50 border"
                             >
-                              <div className="flex-1">
-                                <div className="font-medium text-sm">{resource.name}</div>
-                                <div className="text-xs text-muted-foreground">
-                                  {resource.type} • {resource.region}
-                                </div>
-                                {resource.description && (
-                                  <div className="text-xs text-muted-foreground mt-1">
-                                    {resource.description}
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <div className="font-medium text-sm truncate">{resource.name}</div>
+                                    {resource.status && (
+                                      <Badge 
+                                        variant={
+                                          resource.status === 'Active' || resource.status === 'CREATE_COMPLETE'
+                                            ? 'default'
+                                            : 'secondary'
+                                        }
+                                        className="text-xs shrink-0"
+                                      >
+                                        {resource.status}
+                                      </Badge>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {resource.status && (
-                                  <Badge 
-                                    variant={
-                                      resource.status === 'Active' || resource.status === 'CREATE_COMPLETE'
-                                        ? 'default'
-                                        : 'secondary'
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {resource.status}
-                                  </Badge>
+                                  
+                                  <div className="text-xs text-muted-foreground space-y-1">
+                                    <div>{resource.type} • {resource.region}</div>
+                                    {resource.description && (
+                                      <div>{resource.description}</div>
+                                    )}
+                                    {resource.arn && (
+                                      <div className="flex items-center gap-1">
+                                        <span className="font-mono bg-muted px-1.5 py-0.5 rounded text-xs truncate">
+                                          {resource.arn}
+                                        </span>
+                                        <Button
+                                          size="icon"
+                                          variant="ghost"
+                                          className="h-5 w-5 shrink-0"
+                                          onClick={() => navigator.clipboard.writeText(resource.arn || '')}
+                                          title="Copy ARN"
+                                        >
+                                          <Copy className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                
+                                {resource.consoleUrl && (
+                                  <div className="ml-2 shrink-0">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-7 text-xs"
+                                      onClick={() => window.open(resource.consoleUrl, '_blank', 'noopener,noreferrer')}
+                                    >
+                                      <ExternalLink className="h-3 w-3 mr-1" />
+                                      Console
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             </div>
