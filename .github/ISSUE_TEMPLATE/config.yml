@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussion
+    url: https://github.com/[username]/hendrix-template-mvp/discussions
+    about: Posez des questions ou discutez avec la communauté
+  - name: 🔒 Problème de sécurité
+    url: https://github.com/[username]/hendrix-template-mvp/security/advisories/new
+    about: Signalez une vulnérabilité de sécurité (privé)

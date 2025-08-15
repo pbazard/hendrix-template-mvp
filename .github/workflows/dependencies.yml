@@ -1,0 +1,207 @@
+name: 📦 Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: 📦 Update Dependencies
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📋 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Check for updates
+        id: updates
+        run: |
+          # Check for npm updates
+          npm outdated --json > outdated.json || true
+          
+          if [ -s outdated.json ]; then
+            echo "has_updates=true" >> $GITHUB_OUTPUT
+            echo "📦 Found dependency updates:"
+            cat outdated.json | jq -r 'to_entries[] | "  \(.key): \(.value.current) → \(.value.wanted)"'
+          else
+            echo "has_updates=false" >> $GITHUB_OUTPUT
+            echo "✅ All dependencies are up to date"
+          fi
+
+      - name: 📦 Update dependencies
+        if: steps.updates.outputs.has_updates == 'true'
+        run: |
+          # Update non-major versions
+          npx npm-check-updates -u --target minor
+          npm install
+          
+          # Run tests to ensure updates don't break anything
+          npm test -- --run
+          npm run build
+
+      - name: 🔄 Create PR for dependency updates
+        if: steps.updates.outputs.has_updates == 'true'
+        run: |
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Create branch
+          BRANCH_NAME="dependencies/auto-update-$(date +%Y%m%d)"
+          git checkout -b "$BRANCH_NAME"
+          
+          # Commit changes
+          git add package.json package-lock.json
+          git commit -m "📦 chore: update dependencies
+          
+          - Update non-breaking dependency versions
+          - All tests pass after updates
+          - Automated update via GitHub Actions"
+          
+          # Push branch
+          git push origin "$BRANCH_NAME"
+          
+          # Create PR
+          gh pr create \
+            --title "📦 chore: automated dependency updates" \
+            --body "## 📦 Automated Dependency Updates
+          
+          This PR contains automated updates for project dependencies.
+          
+          ### 🔄 Changes
+          - Updates non-breaking dependency versions
+          - All tests pass after updates
+          - No major version bumps (safer updates)
+          
+          ### ✅ Verification
+          - [x] 🧪 Tests pass
+          - [x] 🏗️ Build successful
+          - [x] 📦 Only minor/patch updates
+          
+          ### 🤖 Automation
+          This PR was automatically created by GitHub Actions.
+          It will be auto-merged if all checks pass.
+          
+          ---
+          
+          🔍 **Review the changes** and merge when ready!" \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --label "dependencies" \
+            --label "auto-merge"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  security-updates:
+    name: 🔒 Security Updates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📋 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 🔒 Run security audit
+        id: audit
+        run: |
+          # Run audit and capture output
+          if npm audit --audit-level=high --json > audit.json; then
+            echo "vulnerabilities=false" >> $GITHUB_OUTPUT
+          else
+            VULN_COUNT=$(cat audit.json | jq '.metadata.vulnerabilities.total')
+            if [ "$VULN_COUNT" -gt 0 ]; then
+              echo "vulnerabilities=true" >> $GITHUB_OUTPUT
+              echo "vuln_count=$VULN_COUNT" >> $GITHUB_OUTPUT
+            else
+              echo "vulnerabilities=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: 🛠️ Fix security vulnerabilities
+        if: steps.audit.outputs.vulnerabilities == 'true'
+        run: |
+          echo "🔒 Found ${{ steps.audit.outputs.vuln_count }} vulnerabilities"
+          
+          # Try to fix automatically
+          npm audit fix
+          
+          # Verify fixes
+          npm test -- --run
+          npm run build
+
+      - name: 🔄 Create security PR
+        if: steps.audit.outputs.vulnerabilities == 'true'
+        run: |
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Create branch
+          BRANCH_NAME="security/auto-fix-$(date +%Y%m%d)"
+          git checkout -b "$BRANCH_NAME"
+          
+          # Commit changes
+          git add .
+          git commit -m "🔒 security: fix vulnerabilities
+          
+          - Fix ${{ steps.audit.outputs.vuln_count }} security vulnerabilities
+          - Automated fix via npm audit fix
+          - All tests pass after fixes"
+          
+          # Push branch
+          git push origin "$BRANCH_NAME"
+          
+          # Create PR
+          gh pr create \
+            --title "🔒 security: fix vulnerabilities" \
+            --body "## 🔒 Security Vulnerability Fixes
+          
+          This PR fixes **${{ steps.audit.outputs.vuln_count }}** security vulnerabilities.
+          
+          ### 🛠️ Changes
+          - Automated fixes via \`npm audit fix\`
+          - All tests pass after fixes
+          - Build successful
+          
+          ### ⚠️ Important
+          Please review these changes carefully as they may include:
+          - Dependency version bumps
+          - Potential breaking changes
+          - Security patches
+          
+          ### ✅ Verification
+          - [x] 🧪 Tests pass
+          - [x] 🏗️ Build successful
+          - [x] 🔒 Vulnerabilities fixed
+          
+          ---
+          
+          🤖 **Automated security fix** - Review and merge ASAP!" \
+            --base main \
+            --head "$BRANCH_NAME" \
+            --label "security" \
+            --label "priority-high"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

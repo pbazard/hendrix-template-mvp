@@ -1,0 +1,147 @@
+name: 🔄 Auto Create PR
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
+      - 'release/**'
+
+jobs:
+  auto-pr:
+    name: 🔄 Create PR
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Check if PR exists
+        id: check_pr
+        run: |
+          PR_COUNT=$(gh pr list --head ${{ github.ref_name }} --json number --jq length)
+          echo "pr_count=$PR_COUNT" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📋 Setup Node.js
+        if: steps.check_pr.outputs.pr_count == '0'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        if: steps.check_pr.outputs.pr_count == '0'
+        run: npm ci
+
+      - name: 🧪 Run tests
+        if: steps.check_pr.outputs.pr_count == '0'
+        run: npm test -- --run
+
+      - name: 🏗️ Build check
+        if: steps.check_pr.outputs.pr_count == '0'
+        run: npm run build
+
+      - name: 🔄 Create Pull Request
+        if: steps.check_pr.outputs.pr_count == '0'
+        run: |
+          # Extract branch type and name
+          BRANCH_NAME="${{ github.ref_name }}"
+          BRANCH_TYPE=$(echo "$BRANCH_NAME" | cut -d'/' -f1)
+          BRANCH_FEATURE=$(echo "$BRANCH_NAME" | cut -d'/' -f2-)
+          
+          # Determine target branch
+          TARGET_BRANCH="main"
+          if [[ "$BRANCH_TYPE" == "feature" || "$BRANCH_TYPE" == "bugfix" ]]; then
+            TARGET_BRANCH="develop"
+          fi
+          
+          # Create appropriate title and body
+          case "$BRANCH_TYPE" in
+            "feature")
+              TITLE="✨ feat: $BRANCH_FEATURE"
+              EMOJI="✨"
+              TYPE="Feature"
+              ;;
+            "bugfix")
+              TITLE="🐛 fix: $BRANCH_FEATURE"
+              EMOJI="🐛"
+              TYPE="Bug Fix"
+              ;;
+            "hotfix")
+              TITLE="🚨 hotfix: $BRANCH_FEATURE"
+              EMOJI="🚨"
+              TYPE="Hotfix"
+              ;;
+            "release")
+              TITLE="🚀 release: $BRANCH_FEATURE"
+              EMOJI="🚀"
+              TYPE="Release"
+              ;;
+            *)
+              TITLE="🔄 $BRANCH_FEATURE"
+              EMOJI="🔄"
+              TYPE="Update"
+              ;;
+          esac
+          
+          # Get commit messages for description
+          COMMITS=$(git log --oneline $TARGET_BRANCH..HEAD --pretty=format:"- %s" | head -10)
+          
+          # Create PR body
+          cat > pr_body.md << EOF
+          ## $EMOJI $TYPE: $BRANCH_FEATURE
+          
+          ### 📋 Description
+          This PR introduces changes from the \`$BRANCH_NAME\` branch.
+          
+          ### 🔄 Changes
+          $COMMITS
+          
+          ### ✅ Checklist
+          - [x] 🧪 Tests pass
+          - [x] 🏗️ Build successful
+          - [ ] 📝 Documentation updated
+          - [ ] 🔍 Code reviewed
+          - [ ] ✨ Ready for merge
+          
+          ### 🚀 Type of Change
+          - [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
+          - [ ] ✨ New feature (non-breaking change which adds functionality)
+          - [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
+          - [ ] 📝 Documentation update
+          - [ ] 🔧 Chore (maintenance, deps update, etc.)
+          
+          ### 🧪 Testing
+          - [x] Unit tests pass
+          - [ ] Integration tests pass
+          - [ ] Manual testing completed
+          
+          ---
+          
+          🤖 *This PR was automatically created when tests passed on the \`$BRANCH_NAME\` branch.*
+          EOF
+          
+          # Create the PR
+          gh pr create \
+            --title "$TITLE" \
+            --body-file pr_body.md \
+            --base "$TARGET_BRANCH" \
+            --head "$BRANCH_NAME" \
+            --label "auto-created" \
+            --label "$BRANCH_TYPE"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🎉 PR Created Successfully
+        if: steps.check_pr.outputs.pr_count == '0'
+        run: |
+          echo "🎉 Pull Request created successfully!"
+          echo "🔗 View PR: https://github.com/${{ github.repository }}/pulls"

@@ -1,0 +1,76 @@
+name: Feature Request
+description: Suggérez une idée ou une nouvelle fonctionnalité
+title: "[Feature]: "
+labels: ["enhancement", "feature-request"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de suggérer cette nouvelle fonctionnalité ! 🚀
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème ou besoin
+      description: Décrivez le problème que cette fonctionnalité résoudrait
+      placeholder: |
+        Je trouve frustrant que... parce que...
+        Il serait utile de pouvoir...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+      description: Décrivez la solution que vous aimeriez voir implémentée
+      placeholder: |
+        J'aimerais que l'application puisse...
+        Une bonne approche serait de...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considérées
+      description: Avez-vous pensé à d'autres solutions ?
+      placeholder: |
+        Une alternative serait de...
+        J'ai aussi considéré...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorité
+      description: Quelle est l'importance de cette fonctionnalité ?
+      options:
+        - Critique (bloque l'utilisation)
+        - Élevée (amélioration significative)
+        - Moyenne (amélioration utile)
+        - Faible (amélioration mineure)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Contexte supplémentaire
+      description: Ajoutez tout autre contexte, captures d'écran, mockups, etc.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Vérifications
+      description: En soumettant cette demande, je confirme que
+      options:
+        - label: J'ai vérifié que cette fonctionnalité n'existe pas déjà
+          required: true
+        - label: J'ai cherché dans les issues existantes pour éviter les doublons
+          required: true

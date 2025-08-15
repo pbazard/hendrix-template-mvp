@@ -1,0 +1,43 @@
+# Code Owners Configuration
+# This file defines who owns different parts of the codebase
+# and will be automatically requested for review on PRs
+
+# Global ownership (fallback)
+* @pbazard
+
+# Core application files
+/src/ @pbazard
+/amplify/ @pbazard
+
+# Configuration files
+package.json @pbazard
+package-lock.json @pbazard
+tsconfig.json @pbazard
+tailwind.config.ts @pbazard
+vitest.config.ts @pbazard
+
+# GitHub configuration
+/.github/ @pbazard
+/.github/workflows/ @pbazard
+
+# Documentation
+README.md @pbazard
+/docs/ @pbazard
+*.md @pbazard
+
+# Security and deployment
+.env.example @pbazard
+amplify.yml @pbazard
+
+# Testing
+/src/test/ @pbazard
+**/*.test.* @pbazard
+**/__tests__/ @pbazard
+
+# Scripts
+/scripts/ @pbazard
+
+# Add team members or additional reviewers here:
+# /src/components/ @team-frontend
+# /amplify/ @team-backend
+# /docs/ @team-docs

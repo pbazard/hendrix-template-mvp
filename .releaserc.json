@@ -1,0 +1,89 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "alpha",
+      "prerelease": true
+    }
+  ],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "docs", "release": "patch" },
+          { "type": "style", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "test", "release": "patch" },
+          { "type": "build", "release": "patch" },
+          { "type": "ci", "release": "patch" },
+          { "type": "chore", "release": "patch" },
+          { "breaking": true, "release": "major" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "🚀 Nouvelles fonctionnalités" },
+            { "type": "fix", "section": "🐛 Corrections de bugs" },
+            { "type": "perf", "section": "⚡ Améliorations de performance" },
+            { "type": "docs", "section": "📚 Documentation" },
+            { "type": "style", "section": "🎨 Style et formatage" },
+            { "type": "refactor", "section": "♻️ Refactoring" },
+            { "type": "test", "section": "✅ Tests" },
+            { "type": "build", "section": "🔧 Build et dépendances" },
+            { "type": "ci", "section": "🤖 Intégration continue" },
+            { "type": "chore", "section": "🔨 Maintenance", "hidden": true }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# 📋 Changelog\n\nTous les changements notables de ce projet seront documentés dans ce fichier.\n\nLe format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),\net ce projet adhère au [Versioning Sémantique](https://semver.org/lang/fr/).\n"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false,
+        "tarballDir": "dist"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "dist/*.tgz",
+            "label": "Distribution (tarball)"
+          }
+        ],
+        "successComment": "🎉 Cette PR est incluse dans la version ${nextRelease.version} qui vient d'être publiée. Le changelog complet est disponible [ici](${releases[0].url}) 🚀",
+        "failComment": "❌ Cette PR n'a pas pu être incluse dans la release à cause de l'erreur suivante :\n\n${errors.map(err => err.message).join('\\n\\n')}",
+        "releasedLabels": ["✅ released"]
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json", "package-lock.json"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}

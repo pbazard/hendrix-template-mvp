@@ -1,13 +1,24 @@
-# Template Setup Guide
+# 🚀 Guide de Configuration du Template
 
-## 🎯 How to use this template
+Ce guide vous aide à configurer votre nouveau projet basé sur le template **Hendrix MVP**.
 
-### Method 1: GitHub Template (Recommended)
+## 📋 Checklist de Configuration
 
-1. **Make this repository a template:**
-   - Go to your repository settings on GitHub
-   - Check "Template repository" option
-   - Save changes
+### 1. Configuration Initiale
+
+- [ ] **Cloner ou utiliser le template**
+  ```bash
+  # Via GitHub CLI
+  gh repo create mon-nouveau-projet --template pbazard/hendrix-template-mvp
+  
+  # Ou via interface GitHub
+  # Cliquez sur "Use this template" sur GitHub
+  ```
+
+- [ ] **Mettre à jour les informations du projet**
+  - [ ] Modifier `package.json` : nom, description, auteur, repository
+  - [ ] Mettre à jour `README.md`
+  - [ ] Personnaliser `LICENSE` si nécessaire
 
 2. **Create new project from template:**
    ```bash

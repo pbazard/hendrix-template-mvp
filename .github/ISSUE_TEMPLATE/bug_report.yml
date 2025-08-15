@@ -1,0 +1,78 @@
+name: Bug Report
+description: Signalez un bug ou un problème
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de signaler ce bug ! Veuillez fournir autant de détails que possible.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Que s'est-il passé ?
+      description: Décrivez le comportement observé et ce qui était attendu.
+      placeholder: |
+        Lorsque je clique sur le bouton "Générer QR Code", rien ne se passe...
+        Je m'attendais à voir apparaître un QR code...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes de reproduction
+      description: Comment reproduire ce problème ?
+      placeholder: |
+        1. Aller sur la page '...'
+        2. Cliquer sur '...'
+        3. Défiler jusqu'à '...'
+        4. Voir l'erreur
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Navigateur
+      description: Sur quel navigateur ce problème se produit-il ?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Autre
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environnement
+      description: Informations sur votre environnement
+      placeholder: |
+        - OS: [ex. macOS 13.0]
+        - Version Node.js: [ex. 18.17.0]
+        - Version du navigateur: [ex. Chrome 117]
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs ou messages d'erreur
+      description: Si applicable, ajoutez les logs ou messages d'erreur
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Contexte supplémentaire
+      description: Ajoutez tout autre contexte utile (captures d'écran, etc.)
+    validations:
+      required: false

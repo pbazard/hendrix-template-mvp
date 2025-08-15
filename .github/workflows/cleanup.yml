@@ -1,0 +1,195 @@
+name: 🧹 Cleanup
+
+on:
+  schedule:
+    # Tous les dimanches à 02:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      cleanup_type:
+        description: 'Type de nettoyage'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - branches
+          - cache
+          - artifacts
+
+concurrency:
+  group: cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup-branches:
+    name: 🌿 Cleanup Branches
+    runs-on: ubuntu-latest
+    if: github.event.inputs.cleanup_type == 'branches' || github.event.inputs.cleanup_type == 'all' || github.event_name == 'schedule'
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🗑️ Delete merged branches
+        run: |
+          echo "🔍 Recherche des branches mergées..."
+          
+          # Supprimer les branches locales mergées (sauf main et develop)
+          git branch --merged main | grep -v -E "(main|develop|\*)" | xargs -n 1 git branch -d || true
+          
+          # Supprimer les références des branches distantes qui n'existent plus
+          git remote prune origin
+          
+          # Lister les branches distantes mergées
+          echo "📋 Branches distantes mergées :"
+          git for-each-ref --format='%(refname:short) %(committerdate)' refs/remotes/origin | \
+            grep -v -E "(main|develop|HEAD)" | \
+            while read branch date; do
+              # Vérifier si la branche est mergée
+              if git merge-base --is-ancestor "origin/${branch#origin/}" origin/main 2>/dev/null; then
+                echo "✅ $branch (mergée le $date)"
+              fi
+            done
+
+  cleanup-cache:
+    name: 🗂️ Cleanup Cache
+    runs-on: ubuntu-latest
+    if: github.event.inputs.cleanup_type == 'cache' || github.event.inputs.cleanup_type == 'all' || github.event_name == 'schedule'
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🧹 Clear GitHub Actions Cache
+        run: |
+          echo "🗑️ Nettoyage du cache GitHub Actions..."
+          
+          # Utiliser GitHub CLI pour lister et supprimer les caches anciens
+          gh cache list --limit 100 --json key,createdAt | \
+            jq -r '.[] | select(.createdAt < (now - 86400 * 7 | todate)) | .key' | \
+            while read -r key; do
+              echo "🗑️ Suppression du cache: $key"
+              gh cache delete "$key" || true
+            done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup-artifacts:
+    name: 📦 Cleanup Artifacts
+    runs-on: ubuntu-latest
+    if: github.event.inputs.cleanup_type == 'artifacts' || github.event.inputs.cleanup_type == 'all' || github.event_name == 'schedule'
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🗑️ Delete old artifacts
+        run: |
+          echo "🗑️ Nettoyage des artifacts anciens..."
+          
+          # Supprimer les artifacts de plus de 30 jours
+          gh api repos/${{ github.repository }}/actions/artifacts \
+            --jq '.artifacts[] | select(.created_at < (now - 86400 * 30 | todate)) | .id' | \
+            while read -r artifact_id; do
+              echo "🗑️ Suppression de l'artifact: $artifact_id"
+              gh api repos/${{ github.repository }}/actions/artifacts/$artifact_id -X DELETE || true
+            done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup-packages:
+    name: 📦 Cleanup Packages
+    runs-on: ubuntu-latest
+    if: github.event.inputs.cleanup_type == 'all' || github.event_name == 'schedule'
+    
+    steps:
+      - name: 🔍 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🗑️ Delete old package versions
+        run: |
+          echo "🗑️ Nettoyage des anciennes versions de packages..."
+          
+          # Garder seulement les 10 dernières versions des packages
+          gh api graphql -f query='
+            query($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                packages(first: 10) {
+                  nodes {
+                    name
+                    versions(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
+                      nodes {
+                        id
+                        version
+                        createdAt
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ' -f owner=${{ github.repository_owner }} -f repo=${{ github.event.repository.name }} \
+            --jq '.data.repository.packages.nodes[] | .versions.nodes[10:] | .[] | .id' | \
+            while read -r version_id; do
+              echo "🗑️ Suppression de la version: $version_id"
+              gh api graphql -f query='
+                mutation($packageVersionId: ID!) {
+                  deletePackageVersion(input: {packageVersionId: $packageVersionId}) {
+                    success
+                  }
+                }
+              ' -f packageVersionId=$version_id || true
+            done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  report:
+    name: 📊 Cleanup Report
+    runs-on: ubuntu-latest
+    needs: [cleanup-branches, cleanup-cache, cleanup-artifacts, cleanup-packages]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Report
+        run: |
+          echo "## 🧹 Rapport de nettoyage" >> cleanup_report.md
+          echo "" >> cleanup_report.md
+          echo "**Date**: $(date)" >> cleanup_report.md
+          echo "**Type**: ${{ github.event.inputs.cleanup_type || 'all' }}" >> cleanup_report.md
+          echo "" >> cleanup_report.md
+          
+          # Statuts des jobs
+          echo "### 📋 Statuts" >> cleanup_report.md
+          echo "- Branches: ${{ needs.cleanup-branches.result }}" >> cleanup_report.md
+          echo "- Cache: ${{ needs.cleanup-cache.result }}" >> cleanup_report.md
+          echo "- Artifacts: ${{ needs.cleanup-artifacts.result }}" >> cleanup_report.md
+          echo "- Packages: ${{ needs.cleanup-packages.result }}" >> cleanup_report.md
+          echo "" >> cleanup_report.md
+          
+          echo "### 🔗 Liens utiles" >> cleanup_report.md
+          echo "- [Actions](https://github.com/${{ github.repository }}/actions)" >> cleanup_report.md
+          echo "- [Branches](https://github.com/${{ github.repository }}/branches)" >> cleanup_report.md
+          echo "- [Packages](https://github.com/${{ github.repository }}/packages)" >> cleanup_report.md
+          
+          cat cleanup_report.md
+
+      - name: 💬 Comment on Issue
+        if: github.event_name == 'schedule'
+        run: |
+          # Créer ou mettre à jour une issue de suivi
+          issue_number=$(gh issue list --label "maintenance" --state open --json number --jq '.[0].number')
+          
+          if [ -z "$issue_number" ]; then
+            gh issue create \
+              --title "🧹 Rapport de maintenance automatique" \
+              --body-file cleanup_report.md \
+              --label "maintenance,automated"
+          else
+            gh issue comment $issue_number --body-file cleanup_report.md
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

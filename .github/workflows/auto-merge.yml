@@ -1,0 +1,104 @@
+name: 🚀 Auto Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+
+jobs:
+  auto-merge:
+    name: 🚀 Auto Merge
+    runs-on: ubuntu-latest
+    if: |
+      github.event.pull_request.draft == false &&
+      (
+        contains(github.event.pull_request.labels.*.name, 'auto-merge') ||
+        contains(github.event.pull_request.labels.*.name, 'dependencies')
+      )
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check PR status
+        id: pr_status
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          # Get PR details
+          PR_DATA=$(gh pr view $PR_NUMBER --json state,mergeable,reviewDecision,statusCheckRollup)
+          
+          STATE=$(echo "$PR_DATA" | jq -r '.state')
+          MERGEABLE=$(echo "$PR_DATA" | jq -r '.mergeable')
+          REVIEW_DECISION=$(echo "$PR_DATA" | jq -r '.reviewDecision')
+          
+          # Check if all status checks pass
+          CHECKS_STATE=$(echo "$PR_DATA" | jq -r '.statusCheckRollup[] | select(.context != "auto-merge") | .state' | sort -u)
+          ALL_CHECKS_PASS=$(echo "$CHECKS_STATE" | grep -v "SUCCESS" | wc -l)
+          
+          echo "state=$STATE" >> $GITHUB_OUTPUT
+          echo "mergeable=$MERGEABLE" >> $GITHUB_OUTPUT
+          echo "review_decision=$REVIEW_DECISION" >> $GITHUB_OUTPUT
+          echo "all_checks_pass=$ALL_CHECKS_PASS" >> $GITHUB_OUTPUT
+          
+          echo "🔍 PR Status:"
+          echo "  State: $STATE"
+          echo "  Mergeable: $MERGEABLE"
+          echo "  Review Decision: $REVIEW_DECISION"
+          echo "  All Checks Pass: $ALL_CHECKS_PASS"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⏳ Wait for checks
+        if: steps.pr_status.outputs.all_checks_pass != '0'
+        run: |
+          echo "⏳ Waiting for all checks to pass..."
+          sleep 30
+
+      - name: 🚀 Auto merge PR
+        if: |
+          steps.pr_status.outputs.state == 'OPEN' &&
+          steps.pr_status.outputs.mergeable == 'MERGEABLE' &&
+          (
+            steps.pr_status.outputs.review_decision == 'APPROVED' ||
+            contains(github.event.pull_request.labels.*.name, 'dependencies')
+          ) &&
+          steps.pr_status.outputs.all_checks_pass == '0'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          # Determine merge method based on labels
+          MERGE_METHOD="squash"
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'no-squash') }}" == "true" ]]; then
+            MERGE_METHOD="merge"
+          fi
+          
+          echo "🚀 Auto-merging PR #$PR_NUMBER using $MERGE_METHOD method"
+          
+          gh pr merge $PR_NUMBER --$MERGE_METHOD --delete-branch
+          
+          echo "✅ PR #$PR_NUMBER merged successfully!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 💬 Comment on failed auto-merge
+        if: failure()
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          gh pr comment $PR_NUMBER --body "❌ **Auto-merge failed**
+          
+          The automatic merge process failed. Please check:
+          - ✅ All required checks are passing
+          - ✅ PR has required approvals
+          - ✅ No merge conflicts
+          - ✅ Branch is up to date
+          
+          You can manually merge this PR once all conditions are met."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

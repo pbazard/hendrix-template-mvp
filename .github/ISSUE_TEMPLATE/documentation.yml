@@ -1,0 +1,58 @@
+name: Documentation
+description: Amélioration ou correction de la documentation
+title: "[Docs]: "
+labels: ["documentation"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de contribuer à améliorer notre documentation ! 📚
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Type de documentation
+      description: Quel type de documentation est concerné ?
+      options:
+        - README
+        - API Documentation
+        - Guides d'utilisation
+        - Code Comments
+        - Setup/Installation
+        - Autre
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Problème avec la documentation actuelle
+      description: Que manque-t-il ou qu'est-ce qui est incorrect ?
+      placeholder: |
+        La section sur l'installation ne mentionne pas...
+        Les exemples de code sont obsolètes...
+        Il manque une explication sur...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Amélioration suggérée
+      description: Comment améliorer cette documentation ?
+      placeholder: |
+        Ajouter une section sur...
+        Mettre à jour les exemples pour inclure...
+        Clarifier la partie concernant...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Contexte supplémentaire
+      description: Liens, références, ou autres informations utiles
+    validations:
+      required: false
