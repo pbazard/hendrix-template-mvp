@@ -18,7 +18,7 @@ export default function HomePage() {
   return (
     <>
       {/* Configure Amplify */}
-      {/* <ConfigureAmplify /> */}
+      <ConfigureAmplify />
       
       <main className="container mx-auto py-8 px-4">
         <div className="max-w-4xl mx-auto">
@@ -41,11 +41,8 @@ export default function HomePage() {
 
           {/* Todo Application */}
           <div className="space-y-6">
-            {/* <TodoForm onAdd={createTodo} /> */}
-            {/* <TodoList /> */}
-            <div className="p-4 border rounded-lg">
-              <p>Todo components temporarily disabled for CSS debugging</p>
-            </div>
+            <TodoForm onAdd={createTodo} />
+            <TodoList />
           </div>
 
           {/* Footer */}
