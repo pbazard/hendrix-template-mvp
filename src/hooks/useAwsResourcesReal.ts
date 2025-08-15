@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { AwsResource, AwsResourcesByService } from './useAwsResources';
+import { 
+  guessDynamoDBTableName, 
+  extractAmplifyDeploymentMeta, 
+  createRealisticDynamoDBArn,
+  formatResourceDisplayName 
+} from '@/lib/amplify-resource-utils';
 
 // Interface pour les métadonnées Amplify
 interface AmplifyBackendConfig {
@@ -9,11 +15,28 @@ interface AmplifyBackendConfig {
     user_pool_id?: string;
     identity_pool_id?: string;
     user_pool_client_id?: string;
+    aws_region?: string;
   };
   data?: {
     url?: string;
     region?: string;
+    aws_region?: string;
     default_authorization_type?: string;
+    model_introspection?: {
+      version: number;
+      models: {
+        [key: string]: {
+          name: string;
+          fields: Record<string, any>;
+          syncable: boolean;
+          pluralName: string;
+          attributes: any[];
+          primaryKeyInfo: any;
+        };
+      };
+      enums: Record<string, any>;
+      nonModels: Record<string, any>;
+    };
   };
   storage?: {
     bucket_name?: string;
@@ -108,7 +131,7 @@ export function useAwsResourcesReal() {
 
         // Analyser les ressources Cognito
         if (amplifyConfig.auth?.user_pool_id) {
-          const region = amplifyConfig.data?.region || 'us-east-1';
+          const region = amplifyConfig.data?.aws_region || amplifyConfig.data?.region || amplifyConfig.auth?.aws_region || 'us-east-1';
           detectedResources.push({
             id: `user-pool-${amplifyConfig.auth.user_pool_id}`,
             name: amplifyConfig.auth.user_pool_id,
@@ -123,7 +146,7 @@ export function useAwsResourcesReal() {
         }
 
         if (amplifyConfig.auth?.identity_pool_id) {
-          const region = amplifyConfig.data?.region || 'us-east-1';
+          const region = amplifyConfig.data?.aws_region || amplifyConfig.data?.region || amplifyConfig.auth?.aws_region || 'us-east-1';
           detectedResources.push({
             id: `identity-pool-${amplifyConfig.auth.identity_pool_id}`,
             name: amplifyConfig.auth.identity_pool_id,
@@ -137,9 +160,37 @@ export function useAwsResourcesReal() {
           });
         }
 
+        // Analyser les modèles DynamoDB à partir de model_introspection
+        if (amplifyConfig.data?.model_introspection?.models) {
+          const region = amplifyConfig.data?.aws_region || amplifyConfig.data?.region || 'us-east-1';
+          const models = amplifyConfig.data.model_introspection.models;
+          const deploymentMeta = extractAmplifyDeploymentMeta(amplifyConfig);
+          
+          Object.entries(models).forEach(([modelName, modelInfo]) => {
+            // Générer le nom de la table DynamoDB le plus probable
+            const tableName = guessDynamoDBTableName(modelName, amplifyConfig);
+            const displayName = formatResourceDisplayName(tableName, 'Table');
+            
+            // Créer un ARN réaliste
+            const tableArn = createRealisticDynamoDBArn(modelName, amplifyConfig);
+            
+            detectedResources.push({
+              id: `dynamodb-table-${modelName.toLowerCase()}`,
+              name: displayName,
+              type: 'Table',
+              service: 'DynamoDB',
+              region,
+              status: 'Active',
+              description: `Table DynamoDB pour le modèle ${modelName} (${Object.keys(modelInfo.fields).length} champs: ${Object.keys(modelInfo.fields).slice(0, 3).join(', ')}${Object.keys(modelInfo.fields).length > 3 ? '...' : ''})`,
+              arn: tableArn,
+              consoleUrl: generateConsoleUrl('DynamoDB', region, 'Table', tableName)
+            });
+          });
+        }
+
         // Analyser les ressources AppSync/GraphQL
         if (amplifyConfig.data?.url) {
-          const region = amplifyConfig.data.region || extractRegionFromUrl(amplifyConfig.data.url);
+          const region = amplifyConfig.data.aws_region || amplifyConfig.data.region || extractRegionFromUrl(amplifyConfig.data.url);
           const apiId = amplifyConfig.data.url.split('/')[2].split('.')[0];
           
           detectedResources.push({
