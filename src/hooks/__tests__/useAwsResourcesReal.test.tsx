@@ -42,7 +42,7 @@ describe('useAwsResourcesReal', () => {
     expect(result.current.error).toBeNull();
 
     // Vérifier qu'on a bien des ressources de différents services
-    const services = [...new Set(result.current.resources.map(r => r.service))];
+    const services = Array.from(new Set(result.current.resources.map(r => r.service)));
     expect(services).toContain('Cognito');
     expect(services).toContain('AppSync');
     expect(services).toContain('S3');
@@ -134,7 +134,7 @@ describe('useAwsResourcesReal', () => {
 
     // Devrait avoir au moins une ressource d'exemple
     const exampleResource = result.current.resources.find(r => 
-      r.description.includes('Example')
+      r.description?.includes('Example')
     );
     expect(exampleResource).toBeDefined();
   });

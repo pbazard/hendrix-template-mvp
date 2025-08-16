@@ -65,19 +65,21 @@ export function AdminProvider({ children }: AdminProviderProps) {
         return;
       }
 
-      // Check admin access
-      const hasAccess = await CognitoAuthService.hasAdminAccess(currentUser);
-      console.log('🔐 Admin access check:', hasAccess);
-      
-      if (!hasAccess) {
-        console.log('❌ Admin access denied, switching to demo mode');
-        // In demo mode, allow access anyway
-        console.log('🚀 Demo mode: access granted');
+      // Check admin access - but don't block in demo mode
+      try {
+        const hasAccess = await CognitoAuthService.hasAdminAccess(currentUser);
+        console.log('🔐 Admin access check:', hasAccess);
+        
+        if (!hasAccess) {
+          console.log('⚠️ Admin access denied in production, but allowing in demo mode');
+        }
+      } catch (error) {
+        console.log('⚠️ Admin access check failed, continuing in demo mode');
       }
 
       setUser(currentUser);
 
-      // Get permissions
+      // Get permissions with fallback
       try {
         const userPermissions = await CognitoAuthService.getUserPermissions(currentUser);
         console.log('📋 Permissions retrieved:', userPermissions);
@@ -85,7 +87,9 @@ export function AdminProvider({ children }: AdminProviderProps) {
       } catch (error) {
         console.log('⚠️ Permissions error, using demo permissions');
         setPermissions([
-          { id: '1', name: 'Admin access', codename: 'admin_access', contentType: 'Admin' }
+          { id: '1', name: 'Admin access', codename: 'admin_access', contentType: 'Admin' },
+          { id: '2', name: 'User management', codename: 'user_management', contentType: 'User' },
+          { id: '3', name: 'Group management', codename: 'group_management', contentType: 'Group' }
         ]);
       }
 
@@ -113,7 +117,9 @@ export function AdminProvider({ children }: AdminProviderProps) {
       
       setUser(fallbackUser);
       setPermissions([
-        { id: '1', name: 'Admin access', codename: 'admin_access', contentType: 'Admin' }
+        { id: '1', name: 'Admin access', codename: 'admin_access', contentType: 'Admin' },
+        { id: '2', name: 'User management', codename: 'user_management', contentType: 'User' },
+        { id: '3', name: 'Group management', codename: 'group_management', contentType: 'Group' }
       ]);
       
       toast.success('Development mode - Admin access granted');

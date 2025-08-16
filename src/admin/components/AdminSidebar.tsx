@@ -1,5 +1,5 @@
 /**
- * Barre latérale de navigation pour l'interface d'administration Hendrix
+ * Admin Navigation Sidebar - Enhanced interface
  */
 
 'use client';
@@ -17,7 +17,9 @@ import {
   FileText, 
   Settings,
   Shield,
-  BarChart3
+  BarChart3,
+  QrCode,
+  Database
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,22 +33,50 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   {
-    name: 'Tableau de bord',
+    name: 'Dashboard',
     href: '/admin',
     icon: Home,
   },
   {
-    name: 'Tâches',
-    href: '/admin/todo',
-    icon: CheckSquare,
-    modelName: 'Todo',
+    name: 'Users',
+    href: '/admin/users',
+    icon: Users,
+    modelName: 'User',
     action: ActionType.LIST
   },
   {
-    name: 'Utilisateurs',
-    href: '/admin/user',
-    icon: Users,
-    modelName: 'User',
+    name: 'Groups',
+    href: '/admin/groups',
+    icon: Shield,
+    modelName: 'Group',
+    action: ActionType.LIST
+  },
+  {
+    name: 'QR Codes',
+    href: '/admin/qr-codes',
+    icon: QrCode,
+    modelName: 'QRCode',
+    action: ActionType.LIST
+  },
+  {
+    name: 'Analytics',
+    href: '/admin/analytics',
+    icon: BarChart3,
+    modelName: 'Analytics',
+    action: ActionType.LIST
+  },
+  {
+    name: 'Settings',
+    href: '/admin/settings',
+    icon: Settings,
+    modelName: 'Settings',
+    action: ActionType.LIST
+  },
+  {
+    name: 'Tasks',
+    href: '/admin/todo',
+    icon: CheckSquare,
+    modelName: 'Todo',
     action: ActionType.LIST
   },
   {
