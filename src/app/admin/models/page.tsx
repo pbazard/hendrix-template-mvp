@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Database,
   Layers,
@@ -22,10 +23,15 @@ import {
   Key,
   Shield,
   Activity,
-  Info
+  Info,
+  Plus,
+  Edit,
+  Trash2,
+  List
 } from 'lucide-react';
 
 import { ModelIntrospectionService, AmplifyModel, AdminModel, ModelIntrospectionResult } from '@/admin/services/modelIntrospection';
+import CrudModal from '@/admin/components/CrudModal';
 
 export default function ModelsPage() {
   const [introspectionData, setIntrospectionData] = useState<ModelIntrospectionResult | null>(null);
@@ -34,6 +40,19 @@ export default function ModelsPage() {
   const [selectedSection, setSelectedSection] = useState<'all' | 'amplify' | 'admin'>('all');
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
   const [selectedModel, setSelectedModel] = useState<AmplifyModel | AdminModel | null>(null);
+  
+  // CRUD Modal state
+  const [crudModal, setCrudModal] = useState<{
+    isOpen: boolean;
+    model: AmplifyModel | null;
+    operation: 'create' | 'read' | 'update' | 'delete' | 'list';
+    recordId?: string;
+    initialData?: any;
+  }>({
+    isOpen: false,
+    model: null,
+    operation: 'create'
+  });
 
   useEffect(() => {
     loadModels();
@@ -53,13 +72,33 @@ export default function ModelsPage() {
   };
 
   const toggleModelExpansion = (modelName: string) => {
-    const newExpanded = new Set(expandedModels);
-    if (newExpanded.has(modelName)) {
-      newExpanded.delete(modelName);
-    } else {
-      newExpanded.add(modelName);
-    }
-    setExpandedModels(newExpanded);
+    setExpandedModels(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(modelName)) {
+        newSet.delete(modelName);
+      } else {
+        newSet.add(modelName);
+      }
+      return newSet;
+    });
+  };
+
+  const openCrudModal = (model: AmplifyModel, operation: 'create' | 'read' | 'update' | 'delete' | 'list', recordId?: string, initialData?: any) => {
+    setCrudModal({
+      isOpen: true,
+      model,
+      operation,
+      recordId,
+      initialData
+    });
+  };
+
+  const closeCrudModal = () => {
+    setCrudModal({
+      isOpen: false,
+      model: null,
+      operation: 'create'
+    });
   };
 
   const getFilteredModels = () => {
@@ -82,8 +121,25 @@ export default function ModelsPage() {
     const amplifyModel = isAmplifyModel ? model as AmplifyModel : null;
     const adminModel = !isAmplifyModel ? model as AdminModel : null;
 
+    // Different colors for different model types
+    const cardColors = isAmplifyModel 
+      ? {
+          border: 'border-blue-200',
+          bg: 'bg-blue-50',
+          icon: 'text-blue-600',
+          accent: 'text-blue-700',
+          button: 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+        }
+      : {
+          border: 'border-purple-200', 
+          bg: 'bg-purple-50',
+          icon: 'text-purple-600',
+          accent: 'text-purple-700',
+          button: 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+        };
+
     return (
-      <div key={`${type}-${model.name}`} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div key={`${type}-${model.name}`} className={`bg-white rounded-lg shadow-sm border ${cardColors.border} overflow-hidden`}>
         {/* Header */}
         <div 
           className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -96,11 +152,11 @@ export default function ModelsPage() {
               ) : (
                 <ChevronRight className="h-5 w-5 text-gray-500" />
               )}
-              <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <div className={`h-10 w-10 rounded-lg ${cardColors.bg} flex items-center justify-center`}>
                 {isAmplifyModel ? (
-                  <Database className="h-5 w-5 text-blue-600" />
+                  <Database className={`h-5 w-5 ${cardColors.icon}`} />
                 ) : (
-                  <Settings className="h-5 w-5 text-purple-600" />
+                  <Settings className={`h-5 w-5 ${cardColors.icon}`} />
                 )}
               </div>
               <div>
@@ -112,6 +168,42 @@ export default function ModelsPage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* CRUD Actions for Amplify Models */}
+              {isAmplifyModel && amplifyModel && (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openCrudModal(amplifyModel, 'list');
+                    }}
+                    className={`p-2 rounded-lg transition-colors ${cardColors.button}`}
+                    title="List Records"
+                  >
+                    <List className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openCrudModal(amplifyModel, 'create');
+                    }}
+                    className={`p-2 rounded-lg transition-colors ${cardColors.button}`}
+                    title="Create Record"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openCrudModal(amplifyModel, 'read');
+                    }}
+                    className={`p-2 rounded-lg transition-colors ${cardColors.button}`}
+                    title="View Records"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+              
               {isAmplifyModel && amplifyModel && (
                 <>
                   <div className="text-right">
@@ -140,7 +232,7 @@ export default function ModelsPage() {
                       {adminModel.actions.length} actions
                     </p>
                   </div>
-                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${cardColors.button}`}>
                     Admin
                   </span>
                 </>
@@ -390,6 +482,13 @@ export default function ModelsPage() {
                 <Download className="h-4 w-4 mr-2" />
                 Export Schema
               </button>
+              <Link 
+                href="/admin/models/crud-demo"
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+              >
+                <Code className="h-4 w-4 mr-2" />
+                CRUD Demo
+              </Link>
             </div>
           </div>
         </div>
@@ -575,6 +674,22 @@ export default function ModelsPage() {
           </div>
         )}
       </main>
+
+      {/* CRUD Modal */}
+      {crudModal.model && (
+        <CrudModal
+          isOpen={crudModal.isOpen}
+          onClose={closeCrudModal}
+          model={crudModal.model}
+          operation={crudModal.operation}
+          recordId={crudModal.recordId}
+          initialData={crudModal.initialData}
+          onSuccess={() => {
+            // Optionally refresh data or show success message
+            loadModels();
+          }}
+        />
+      )}
     </div>
   );
 }

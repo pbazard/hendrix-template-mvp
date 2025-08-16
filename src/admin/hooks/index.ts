@@ -6,6 +6,9 @@ import { CognitoAuthService } from '../services/auth';
 export { useModelIntrospection } from './useModelIntrospection';
 export type { UseModelIntrospectionReturn } from './useModelIntrospection';
 
+// Export CRUD hook
+export { useModelCrud } from './useModelCrud';
+
 /**
  * Hook pour gérer l'authentification dans l'admin
  */
