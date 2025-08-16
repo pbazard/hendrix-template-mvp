@@ -11,6 +11,7 @@ export * from './config/models';
 // Services
 export * from './services/auth';
 export * from './services/data';
+export * from './services/modelIntrospection';
 
 // Context
 export * from './context/AdminContext';

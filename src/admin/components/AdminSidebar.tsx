@@ -19,7 +19,8 @@ import {
   Shield,
   BarChart3,
   QrCode,
-  Database
+  Database,
+  Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -49,6 +50,13 @@ const navigation: NavItem[] = [
     href: '/admin/groups',
     icon: Shield,
     modelName: 'Group',
+    action: ActionType.LIST
+  },
+  {
+    name: 'Models',
+    href: '/admin/models',
+    icon: Layers,
+    modelName: 'Model',
     action: ActionType.LIST
   },
   {

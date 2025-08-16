@@ -15,8 +15,12 @@ import {
   CheckSquare,
   FileText,
   Bell,
-  Search
+  Search,
+  Database,
+  Layers
 } from 'lucide-react';
+
+import { useModelIntrospection } from '@/admin/hooks/useModelIntrospection';
 
 interface DashboardStats {
   totalUsers: number;
@@ -36,6 +40,7 @@ export default function AdminPage() {
   });
 
   const [searchTerm, setSearchTerm] = useState('');
+  const { data: modelData, loading: modelLoading } = useModelIntrospection();
 
   useEffect(() => {
     // Simulate loading stats
@@ -151,6 +156,81 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+
+        {/* Models Overview */}
+        {!modelLoading && modelData && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 mb-8">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Layers className="h-5 w-5 mr-2 text-blue-600" />
+                    Models Overview
+                  </h2>
+                  <p className="text-gray-600 text-sm mt-1">AWS Amplify and admin configuration models</p>
+                </div>
+                <a 
+                  href="/admin/models"
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  View All →
+                </a>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="flex items-center justify-center h-12 w-12 mx-auto bg-blue-50 rounded-lg mb-3">
+                    <Database className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">{modelData.statistics.amplifyModelsCount}</h3>
+                  <p className="text-sm text-gray-600">Amplify Models</p>
+                  <p className="text-xs text-gray-500 mt-1">{modelData.statistics.tablesCount} DynamoDB tables</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="flex items-center justify-center h-12 w-12 mx-auto bg-purple-50 rounded-lg mb-3">
+                    <Settings className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">{modelData.statistics.adminModelsCount}</h3>
+                  <p className="text-sm text-gray-600">Admin Models</p>
+                  <p className="text-xs text-gray-500 mt-1">Configuration-based</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="flex items-center justify-center h-12 w-12 mx-auto bg-green-50 rounded-lg mb-3">
+                    <FileText className="h-6 w-6 text-green-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">{modelData.statistics.fieldsCount}</h3>
+                  <p className="text-sm text-gray-600">Total Fields</p>
+                  <p className="text-xs text-gray-500 mt-1">Across all models</p>
+                </div>
+              </div>
+              
+              {modelData.amplifyModels.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Recent Amplify Models</h4>
+                  <div className="space-y-2">
+                    {modelData.amplifyModels.slice(0, 3).map(model => (
+                      <div key={model.name} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <Database className="h-4 w-4 text-blue-600 mr-2" />
+                          <span className="text-sm font-medium text-gray-900">{model.name}</span>
+                          <span className="text-xs text-gray-500 ml-2">({Object.keys(model.fields).length} fields)</span>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          model.syncable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {model.syncable ? 'Syncable' : 'Static'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Quick Actions */}

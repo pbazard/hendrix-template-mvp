@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { CognitoUser, ActionType } from '../types';
 import { CognitoAuthService } from '../services/auth';
 
+// Export model introspection hook
+export { useModelIntrospection } from './useModelIntrospection';
+export type { UseModelIntrospectionReturn } from './useModelIntrospection';
+
 /**
  * Hook pour gérer l'authentification dans l'admin
  */
