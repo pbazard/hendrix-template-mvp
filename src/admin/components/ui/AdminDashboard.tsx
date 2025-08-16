@@ -97,7 +97,7 @@ export function AdminDashboard() {
 
       setRecentActivity(activity);
     } catch (error) {
-      console.error('Erreur lors du chargement des données du tableau de bord:', error);
+      console.error('Error loading dashboard data:', error);
     } finally {
       setIsLoading(false);
     }

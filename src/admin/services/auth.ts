@@ -28,7 +28,7 @@ export class CognitoAuthService {
         lastLogin: new Date()
       };
     } catch (error) {
-      console.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      console.error('Error retrieving user:', error);
       return null;
     }
   }
@@ -72,7 +72,7 @@ export class CognitoAuthService {
    * Crée un nouvel utilisateur (version démo)
    */
   static async createUser(userData: Partial<CognitoUser>): Promise<CognitoUser> {
-    console.log('Création utilisateur (démo):', userData);
+    console.log('Creating user (demo):', userData);
     return {
       id: 'new-user',
       username: userData.username || 'newuser',
@@ -92,7 +92,7 @@ export class CognitoAuthService {
    * Met à jour un utilisateur (version démo)
    */
   static async updateUser(username: string, userData: Partial<CognitoUser>): Promise<CognitoUser> {
-    console.log('Mise à jour utilisateur (démo):', username, userData);
+    console.log('Updating user (demo):', username, userData);
     return {
       id: username,
       username,
@@ -112,21 +112,21 @@ export class CognitoAuthService {
    * Supprime un utilisateur (version démo)
    */
   static async deleteUser(username: string): Promise<void> {
-    console.log('Suppression utilisateur (démo):', username);
+    console.log('Deleting user (demo):', username);
   }
 
   /**
    * Ajoute un utilisateur à un groupe (version démo)
    */
   static async addUserToGroup(username: string, groupName: string): Promise<void> {
-    console.log('Ajout utilisateur au groupe (démo):', username, groupName);
+    console.log('Adding user to group (demo):', username, groupName);
   }
 
   /**
    * Retire un utilisateur d'un groupe (version démo)
    */
   static async removeUserFromGroup(username: string, groupName: string): Promise<void> {
-    console.log('Retrait utilisateur du groupe (démo):', username, groupName);
+    console.log('Removing user from group (demo):', username, groupName);
   }
 
   /**
@@ -175,7 +175,7 @@ export class CognitoAuthService {
    * Déconnexion (version démo)
    */
   static async signOut(): Promise<void> {
-    console.log('Déconnexion (démo)');
+    console.log('Sign out (demo)');
   }
 
   /**

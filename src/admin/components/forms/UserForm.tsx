@@ -103,7 +103,7 @@ export const UserForm: React.FC<UserFormProps> = ({
 
       await onSubmit(userData);
     } catch (error) {
-      console.error('Erreur lors de la soumission du formulaire utilisateur:', error);
+      console.error('Error submitting user form:', error);
       throw error;
     }
   };
