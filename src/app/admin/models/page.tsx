@@ -25,7 +25,7 @@ import {
   Info
 } from 'lucide-react';
 
-import { ModelIntrospectionService, AmplifyModel, AdminModel, ModelIntrospectionResult } from '../services/modelIntrospection';
+import { ModelIntrospectionService, AmplifyModel, AdminModel, ModelIntrospectionResult } from '@/admin/services/modelIntrospection';
 
 export default function ModelsPage() {
   const [introspectionData, setIntrospectionData] = useState<ModelIntrospectionResult | null>(null);
